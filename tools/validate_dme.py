@@ -15,6 +15,8 @@ IGNORE_INCLUDE = [
     r'code/unit_tests/*.dm',
     # Ditto, todo: modularise or remove
     r'code/datums/music_tracks/*.dm',
+    # TGS handles importing itself due to API security reasons
+    r'code/modules/tgs/**/*.dm'
 ]
 
 lines = []
