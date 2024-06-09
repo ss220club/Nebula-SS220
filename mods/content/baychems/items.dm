@@ -25,11 +25,12 @@
 		)
 
 
+/obj/item/chems/glass/bottle/opium/populate_reagents()
+	add_to_reagents(/decl/material/liquid/opium, volume)
+	. = ..()
+
+
 DEFINE_CARTRIDGE_FOR_CHEM(opium, /decl/material/liquid/opium)
-
-/obj/item/chems/glass/bottle/opium
-	desc = "A small bottle of opium."
-
 
 /obj/item/chems/glass/bottle/opium/populate_reagents()
 	var/opium_amount = round(reagents.maximum_volume / 2)
@@ -61,3 +62,10 @@ DEFINE_CARTRIDGE_FOR_CHEM(opium, /decl/material/liquid/opium)
 			/obj/item/chems/chem_disp_cartridge/tungsten,
 			/obj/item/chems/chem_disp_cartridge/opium
 		)
+
+/obj/item/chems/glass/bottle/tramadol
+	desc = "A small bottle of tramadol, an effective but dangerous and addictive painkiller. Do not mix with alcohol."
+
+/obj/item/chems/glass/bottle/tramadol/populate_reagents()
+	add_to_reagents(/decl/material/liquid/painkillers/strong, reagents.maximum_volume)
+	. = ..()

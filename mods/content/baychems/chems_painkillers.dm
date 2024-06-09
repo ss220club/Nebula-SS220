@@ -1,5 +1,5 @@
 // RENAMED:
-/decl/material/liquid/painkillers
+/decl/material/liquid/painkillers/strong
 	name = "tramadol"
 	lore_text = "A simple, yet effective opioid painkiller. Don't mix with alcohol."
 	sedation = 0.05
@@ -14,7 +14,7 @@
 	dizziness_severity = 1
 
 // NEW, NOT RENAMED:
-/decl/material/liquid/painkillers/paracetamol
+/decl/material/liquid/painkillers
 	name = "paracetamol"
 	lore_text = "Most probably know this as Tylenol, but this chemical is a mild, simple painkiller."
 	overdose = 60
@@ -23,6 +23,7 @@
 	breathloss_severity = 0 //Not an opioid. Should not suppress breathing.
 	uid = "chem_paracetamol"
 
+// NEW:
 /decl/material/liquid/painkillers/nefopam
 	name = "nefopam" //better in every way than paracetamol. Very minor side effects.
 	lore_text = "A strong, effective non-opioid alternative to tramadol."
