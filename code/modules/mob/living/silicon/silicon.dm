@@ -321,7 +321,7 @@
 					to_chat(src, "\The [A.alarm_name()].")
 
 		if(alarm_raised)
-			to_chat(src, "<A HREF=?src=\ref[src];showalerts=1>\[Show Alerts\]</A>")
+			to_chat(src, "<A HREF='byond://?src=\ref[src];showalerts=1'>\[Show Alerts\]</A>")
 
 		for(var/datum/alarm_handler/AH in queued_alarms)
 			var/list/alarms = queued_alarms[AH]
@@ -333,13 +333,12 @@
 /mob/living/silicon/ai/raised_alarm(var/datum/alarm/A)
 	var/cameratext = ""
 	for(var/obj/machinery/camera/C in A.cameras())
-		cameratext += "[(cameratext == "")? "" : "|"]<A HREF=?src=\ref[src];switchcamera=\ref[C]>[C.c_tag]</A>"
+		cameratext += "[(cameratext == "")? "" : "|"]<A HREF='byond://?src=\ref[src];switchcamera=\ref[C]'>[C.c_tag]</A>"
 	to_chat(src, "[A.alarm_name()]! ([(cameratext)? cameratext : "No Camera"])")
 
 
-/mob/living/silicon/proc/is_traitor()
-	var/decl/special_role/traitors = GET_DECL(/decl/special_role/traitor)
-	return mind && (mind in traitors.current_antagonists)
+/mob/living/silicon/proc/is_malfunctioning()
+	return FALSE
 
 /mob/living/silicon/reset_view()
 	..()
@@ -455,12 +454,6 @@
 	if(.)
 		adjustBruteLoss(5, do_update_health = FALSE)
 		adjustFireLoss(10)
-
-/mob/living/silicon/get_death_message(gibbed)
-	return "gives one shrill beep before falling lifeless."
-
-/mob/living/silicon/get_self_death_message(gibbed)
-	return "You have suffered a critical system failure, and are dead."
 
 /mob/living/silicon/get_available_postures()
 	var/static/list/available_postures = list(

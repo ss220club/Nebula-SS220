@@ -43,7 +43,7 @@
 
 /decl/material/liquid/ethanol/affect_ingest(var/mob/living/M, var/removed, var/datum/reagents/holder)
 
-	if(M.HasTrait(/decl/trait/metabolically_inert))
+	if(M.has_trait(/decl/trait/metabolically_inert))
 		return
 
 	..()
@@ -131,7 +131,7 @@
 
 /decl/material/liquid/ethanol/beer/affect_ingest(var/mob/living/M, var/removed, var/datum/reagents/holder)
 	..()
-	if(M.HasTrait(/decl/trait/metabolically_inert))
+	if(M.has_trait(/decl/trait/metabolically_inert))
 		return
 	ADJ_STATUS(M, STAT_JITTER, -3)
 
@@ -194,7 +194,7 @@
 /decl/material/liquid/ethanol/coffee/affect_ingest(var/mob/living/M, var/removed, var/datum/reagents/holder)
 	..()
 
-	if(M.HasTrait(/decl/trait/metabolically_inert))
+	if(M.has_trait(/decl/trait/metabolically_inert))
 		return
 
 	ADJ_STATUS(M, STAT_DIZZY, -5)
@@ -276,7 +276,7 @@
 /decl/material/liquid/ethanol/thirteenloko/affect_ingest(var/mob/living/M, var/removed, var/datum/reagents/holder)
 	..()
 
-	if(M.HasTrait(/decl/trait/metabolically_inert))
+	if(M.has_trait(/decl/trait/metabolically_inert))
 		return
 
 	ADJ_STATUS(M, STAT_DROWSY, -7)
@@ -445,14 +445,14 @@
 /decl/material/liquid/ethanol/pwine/affect_ingest(var/mob/living/M, var/removed, var/datum/reagents/holder)
 	..()
 
-	if(M.HasTrait(/decl/trait/metabolically_inert))
+	if(M.has_trait(/decl/trait/metabolically_inert))
 		return
 
 	var/dose = LAZYACCESS(M.chem_doses, type)
 	if(dose > 30)
 		M.take_damage(2 * removed, TOX)
 	if(dose > 60 && ishuman(M) && prob(5))
-		var/mob/living/carbon/human/H = M
+		var/mob/living/human/H = M
 		var/obj/item/organ/internal/heart = GET_INTERNAL_ORGAN(H, BP_HEART)
 		if(heart)
 			if(dose < 120)

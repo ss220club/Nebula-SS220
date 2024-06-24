@@ -97,7 +97,7 @@
 		apply_effect(agony_amount/10, EYE_BLUR)
 
 /mob/living/proc/electrocute_act(var/shock_damage, var/obj/source, var/siemens_coeff = 1.0, def_zone = null)
-	  return 0 //only carbon liveforms have this proc
+	  return 0 // No root logic, implemented separately on human and silicon.
 
 /mob/living/emp_act(severity)
 	for(var/obj/O in get_mob_contents())
@@ -123,7 +123,9 @@
 //returns 0 if the effects failed to apply for some reason, 1 otherwise.
 /mob/living/standard_weapon_hit_effects(obj/item/I, mob/living/user, var/effective_force, var/hit_zone)
 	if(effective_force)
-		return apply_damage(effective_force, I.atom_damage_type, hit_zone, I.damage_flags(), used_weapon=I, armor_pen=I.armor_penetration)
+		try_embed_in_mob(I, hit_zone, effective_force, direction = get_dir(user, src))
+		return TRUE
+	return FALSE
 
 /mob/living/hitby(var/atom/movable/AM, var/datum/thrownthing/TT)
 
@@ -208,7 +210,7 @@
 	if(!affecting)
 		affecting = get_organ(def_zone)
 
-	if(affecting && supplied_wound?.is_open() && dtype == BRUTE) // Can't embed in a small bruise.
+	if(affecting && istype(supplied_wound) && supplied_wound.is_open() && dtype == BRUTE) // Can't embed in a small bruise.
 		var/obj/item/I = O
 		var/sharp = is_sharp(I)
 		embed_damage *= (1 - get_blocked_ratio(def_zone, BRUTE, O.damage_flags(), O.armor_penetration, I.force))
@@ -221,7 +223,7 @@
 		//Sharp objects will always embed if they do enough damage.
 		//Thrown sharp objects have some momentum already and have a small chance to embed even if the damage is below the threshold
 		if((sharp && prob(sharp_embed_chance)) || (embed_damage > embed_threshold && prob(embed_chance)))
-			affecting.embed_in_organ(I, supplied_wound = supplied_wound)
+			affecting.embed_in_organ(I, supplied_wound = (istype(supplied_wound) ? supplied_wound : null))
 			I.has_embedded(src)
 			. = TRUE
 
@@ -244,6 +246,7 @@
 	if(!istype(wall) || !wall.density)
 		return FALSE
 	LAZYDISTINCTADD(pinned, O)
+	walk_to(src, 0) // cancel any automated movement
 	visible_message("\The [src] is pinned to \the [wall] by \the [O]!")
 	// TODO: cancel all throwing and momentum after this point
 	return TRUE

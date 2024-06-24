@@ -47,7 +47,6 @@
 			update_thermal(turf)
 			SSair.mark_for_update(turf)
 
-
 /turf/wall/proc/update_thermal(var/turf/source)
 	if(istype(source) && source.simulated)
 		if(density && opacity)
@@ -76,7 +75,7 @@
 	add_fingerprint(user)
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 	if(ishuman(user))
-		var/mob/living/carbon/human/H = user
+		var/mob/living/human/H = user
 		var/obj/item/hand = GET_EXTERNAL_ORGAN(H, H.get_active_held_item_slot())
 		if(hand && try_graffiti(H, hand))
 			return TRUE

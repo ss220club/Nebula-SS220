@@ -127,7 +127,7 @@
 	var/datum/stack_recipe_list/recipe_list = recipes
 	if (istype(recipe_list))
 		popup_title = "Crafting [recipe_list.name] with \the [src]"
-		dat += "<p><a href='?src=\ref[src];back=1'>Back</a></p>"
+		dat += "<p><a href='byond://?src=\ref[src];back=1'>Back</a></p>"
 		recipes = recipe_list.recipes
 	else if(islist(recipes) && length(recipes))
 		popup_title = "Crafting with \the [src]"
@@ -411,6 +411,11 @@
 	. = ..()
 	if (amount < max_amount)
 		. = CEILING(. * amount / max_amount)
+
+/obj/item/stack/get_mass() // Scales mass to stack size
+	. = ..()
+	if (amount < max_amount)
+		. *= amount / max_amount // Don't round, this can be non-integer
 
 /obj/item/stack/attack_hand(mob/user)
 	if(!user.is_holding_offhand(src) || !can_split())

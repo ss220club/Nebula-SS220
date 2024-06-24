@@ -269,8 +269,6 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 		var/found_whitelisted_job = FALSE
 		for(var/datum/job/job as anything in SSjobs.primary_job_datums)
 			if((species.type in job_to_species_whitelist[job.type]) || (job.type in species_to_job_whitelist[species.type]))
-				LAZYDISTINCTADD(species_to_job_whitelist[species.type], job.type)
-				LAZYDISTINCTADD(job_to_species_whitelist[job.type], species.type)
 				found_whitelisted_job = TRUE
 			else
 				LAZYDISTINCTADD(species_to_job_blacklist[species.type], job.type)
@@ -480,7 +478,7 @@ var/global/const/MAP_HAS_RANK = 2		//Rank system, also togglable
 		else
 			to_chat(player, SPAN_BAD("<b>You did not survive the events on [station_name()]...</b>"))
 
-/datum/map/proc/create_passport(var/mob/living/carbon/human/H)
+/datum/map/proc/create_passport(var/mob/living/human/H)
 	if(!passport_type)
 		return
 	var/obj/item/passport/pass = new passport_type(get_turf(H))

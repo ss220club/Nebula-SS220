@@ -234,12 +234,13 @@
 /obj/machinery/door/hitby(var/atom/movable/AM, var/datum/thrownthing/TT)
 	. = ..()
 	if(.)
-		visible_message("<span class='danger'>[src.name] was hit by [AM].</span>")
+		visible_message(SPAN_DANGER("\The [src] was hit by \the [AM]."))
 		var/tforce = 0
 		if(ismob(AM))
 			tforce = 3 * TT.speed
-		else
-			tforce = AM:throwforce * (TT.speed/THROWFORCE_SPEED_DIVISOR)
+		else if(isobj(AM))
+			var/obj/hitter_obj = AM
+			tforce = hitter_obj.throwforce * (TT.speed/THROWFORCE_SPEED_DIVISOR)
 		playsound(src.loc, hitsound, 100, 1)
 		take_damage(tforce)
 
@@ -342,7 +343,7 @@
 		return TRUE
 	return FALSE
 
-/obj/machinery/door/take_damage(damage, damage_type = BRUTE, damage_flags, inflicter, armor_pen = 0, silent = FALSE)
+/obj/machinery/door/take_damage(damage, damage_type = BRUTE, damage_flags, inflicter, armor_pen = 0, silent, do_update_health)
 	if(!current_health)
 		..(damage, damage_type)
 		update_icon()
@@ -390,7 +391,7 @@
 		else if(current_health < current_max_health && get_dist(src, user) <= 1)
 			to_chat(user, "\The [src] has some minor scuffing.")
 
-	var/mob/living/carbon/human/H = user
+	var/mob/living/human/H = user
 	if (emagged && istype(H) && (H.skill_check(SKILL_COMPUTER, SKILL_ADEPT) || H.skill_check(SKILL_ELECTRICAL, SKILL_ADEPT)))
 		to_chat(user, SPAN_WARNING("\The [src]'s control panel looks fried."))
 
@@ -498,7 +499,6 @@
 	for(var/turf/turf in locs)
 		if(turf.simulated)
 			update_heat_protection(turf)
-			SSair.mark_for_update(turf)
 	return 1
 
 /obj/machinery/door/proc/update_heat_protection(var/turf/source)

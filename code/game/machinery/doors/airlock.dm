@@ -129,13 +129,11 @@ About the new airlock wires panel:
 					return
 			else /*if(src.justzap)*/
 				return
-		else if(prob(10) && src.operating == 0)
-			var/mob/living/carbon/C = user
-			if(istype(C) && C.hallucination_power > 25)
-				to_chat(user, SPAN_DANGER("You feel a powerful shock course through your body!"))
-				user.take_damage(10, PAIN)
-				SET_STATUS_MAX(user, STAT_STUN, 10)
-				return
+		else if(prob(10) && src.operating == 0 && user.hallucination_power > 25)
+			to_chat(user, SPAN_DANGER("You feel a powerful shock course through your body!"))
+			user.take_damage(10, PAIN)
+			SET_STATUS_MAX(user, STAT_STUN, 10)
+			return
 	..(user)
 
 /obj/machinery/door/airlock/bumpopen(mob/living/simple_animal/user)
@@ -1073,7 +1071,7 @@ About the new airlock wires panel:
 	return
 
 // Braces can act as an extra layer of armor - they will take damage first.
-/obj/machinery/door/airlock/take_damage(damage, damage_type = BRUTE, damage_flags, inflicter, armor_pen = 0, silent = FALSE)
+/obj/machinery/door/airlock/take_damage(damage, damage_type = BRUTE, damage_flags, inflicter, armor_pen = 0, silent, do_update_health)
 	if(brace)
 		brace.take_damage(damage)
 	else

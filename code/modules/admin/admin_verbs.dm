@@ -90,7 +90,7 @@ var/global/list/admin_verbs_admin = list(
 	/client/proc/add_trader,
 	/client/proc/remove_trader,
 	/datum/admins/proc/sendFax,
-	/datum/admins/proc/show_aspects
+	/datum/admins/proc/show_traits
 )
 var/global/list/admin_verbs_ban = list(
 	/client/proc/DB_ban_panel,
@@ -112,7 +112,6 @@ var/global/list/admin_verbs_fun = list(
 	/client/proc/everyone_random,
 	/client/proc/cinematic,
 	/datum/admins/proc/toggle_aliens,
-	/datum/admins/proc/toggle_space_ninja,
 	/client/proc/cmd_admin_add_freeform_ai_law,
 	/client/proc/toggle_random_events,
 	/client/proc/editappear,
@@ -153,7 +152,6 @@ var/global/list/admin_verbs_server = list(
 	/datum/admins/proc/adspawn,
 	/datum/admins/proc/adjump,
 	/datum/admins/proc/toggle_aliens,
-	/datum/admins/proc/toggle_space_ninja,
 	/client/proc/toggle_random_events,
 	/client/proc/nanomapgen_DumpImage,
 	/datum/admins/proc/panicbunker,
@@ -268,7 +266,6 @@ var/global/list/admin_verbs_hideable = list(
 	/client/proc/drop_bomb,
 	/client/proc/cinematic,
 	/datum/admins/proc/toggle_aliens,
-	/datum/admins/proc/toggle_space_ninja,
 	/client/proc/cmd_admin_add_freeform_ai_law,
 	/client/proc/cmd_admin_create_centcom_report,
 	/client/proc/toggle_random_events,
@@ -688,7 +685,7 @@ var/global/list/admin_verbs_mod = list(
 
 	if(!check_rights(R_FUN)) return
 
-	var/mob/living/carbon/human/H = input("Select mob.", "Change Mob Appearance - Admin") as null|anything in global.human_mob_list
+	var/mob/living/human/H = input("Select mob.", "Change Mob Appearance - Admin") as null|anything in global.human_mob_list
 	if(!H) return
 
 	log_and_message_admins("is altering the appearance of [H].")
@@ -702,7 +699,7 @@ var/global/list/admin_verbs_mod = list(
 
 	if(!check_rights(R_FUN)) return
 
-	var/mob/living/carbon/human/H = input("Select mob.", "Change Mob Appearance - Self") as null|anything in global.human_mob_list
+	var/mob/living/human/H = input("Select mob.", "Change Mob Appearance - Self") as null|anything in global.human_mob_list
 	if(!H) return
 
 	if(!H.client)
@@ -739,7 +736,7 @@ var/global/list/admin_verbs_mod = list(
 
 	if(!check_rights(R_FUN))	return
 
-	var/mob/living/carbon/human/M = input("Select mob.", "Edit Appearance") as null|anything in global.human_mob_list
+	var/mob/living/human/M = input("Select mob.", "Edit Appearance") as null|anything in global.human_mob_list
 
 	if(!ishuman(M))
 		to_chat(usr, "<span class='warning'>You can only do this to humans!</span>")
@@ -797,7 +794,6 @@ var/global/list/admin_verbs_mod = list(
 	if(update_hair)
 		M.update_hair()
 	M.update_body()
-	M.check_dna(M)
 
 /client/proc/free_slot_submap()
 	set name = "Free Job Slot (Submap)"

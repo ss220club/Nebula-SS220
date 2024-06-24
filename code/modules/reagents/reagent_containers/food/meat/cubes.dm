@@ -10,7 +10,7 @@
 	center_of_mass = @'{"x":16,"y":14}'
 
 	var/growing = FALSE
-	var/monkey_type = /mob/living/carbon/human/monkey
+	var/monkey_type = /mob/living/human/monkey
 	var/wrapper_type
 
 /obj/item/chems/food/monkeycube/populate_reagents()
@@ -54,8 +54,7 @@
 		Expand(get_turf(target))
 
 /obj/item/chems/food/monkeycube/on_reagent_change()
-	..()
-	if(!QDELETED(src) && reagents?.has_reagent(/decl/material/liquid/water))
+	if((. = ..()) && !QDELETED(src) && reagents?.has_reagent(/decl/material/liquid/water))
 		Expand()
 
 /obj/item/chems/food/monkeycube/wrapped

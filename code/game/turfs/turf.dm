@@ -60,6 +60,8 @@
 	//This exists to store air during zone rebuilds, as well as for unsimulated turfs.
 	//They are never deleted to not overwhelm the garbage collector.
 	var/datum/gas_mixture/air
+	///Whether this tile is willing to copy air from a previous tile through ChangeTurf, transfer_turf_properties etc.
+	var/can_inherit_air = TRUE
 	///Is this turf queued in the TURFS cycle of SSair?
 	var/needs_air_update = 0
 
@@ -263,15 +265,6 @@
 		if(W?.storage?.collection_mode && W.storage.gather_all(src, user))
 			return TRUE
 
-	// Must be open, but food items should not be filled from sources like this. They're open in order to add condiments, not to be poured into/out of.
-	// TODO: Rewrite open-container-ness or food to make this unnecessary!
-	if(ATOM_IS_OPEN_CONTAINER(W) && !istype(W, /obj/item/chems/food) && W.reagents && reagents?.total_volume >= FLUID_PUDDLE)
-		var/taking = min(reagents.total_volume, REAGENTS_FREE_SPACE(W.reagents))
-		if(taking > 0)
-			to_chat(user, SPAN_NOTICE("You fill \the [W] with [reagents.get_primary_reagent_name()] from \the [src]."))
-			reagents.trans_to(W, taking)
-			return TRUE
-
 	if(istype(W, /obj/item) && storage && storage.use_to_pickup && storage.collection_mode)
 		storage.gather_all(src, user)
 		return TRUE
@@ -286,6 +279,21 @@
 
 	if(IS_COIL(W) && try_build_cable(W, user))
 		return TRUE
+
+	if(reagents?.total_volume >= FLUID_PUDDLE)
+		// Must be open, but food items should not be filled from sources like this. They're open in order to add condiments, not to be poured into/out of.
+		// TODO: Rewrite open-container-ness or food to make this unnecessary!
+		if(ATOM_IS_OPEN_CONTAINER(W) && !istype(W, /obj/item/chems/food) && W.reagents)
+			var/taking = min(reagents.total_volume, REAGENTS_FREE_SPACE(W.reagents))
+			if(taking > 0)
+				to_chat(user, SPAN_NOTICE("You fill \the [W] with [reagents.get_primary_reagent_name()] from \the [src]."))
+				reagents.trans_to(W, taking)
+				return TRUE
+
+		if(user.a_intent == I_HELP)
+			user.visible_message(SPAN_NOTICE("\The [user] dips \the [W] into \the [reagents.get_primary_reagent_name()]."))
+			W.fluid_act(reagents)
+			return TRUE
 
 	return ..()
 
@@ -407,9 +415,8 @@
 	return 0
 
 /turf/proc/remove_cleanables()
-	for(var/obj/effect/O in src)
-		if(istype(O,/obj/effect/rune) || istype(O,/obj/effect/decal/cleanable))
-			qdel(O)
+	for(var/obj/effect/decal/cleanable/cleanable in src)
+		qdel(cleanable)
 
 /turf/proc/remove_decals()
 	LAZYCLEARLIST(decals)
@@ -498,17 +505,16 @@
 	// We have a weather system and we are exposed to it; update our vis contents.
 	if(istype(new_weather) && is_outside())
 		if(weather != new_weather)
-			if(weather)
-				remove_vis_contents(weather.vis_contents_additions)
 			weather = new_weather
-			add_vis_contents(weather.vis_contents_additions)
 			. = TRUE
 
 	// We are indoors or there is no local weather system, clear our vis contents.
 	else if(weather)
-		remove_vis_contents(weather.vis_contents_additions)
 		weather = null
 		. = TRUE
+
+	if(.)
+		update_vis_contents()
 
 	// Propagate our weather downwards if we permit it.
 	if(force_update_below || (is_open() && .))
@@ -517,27 +523,20 @@
 			below.update_weather(new_weather)
 
 // Updates turf participation in ZAS according to outside status. Must be called whenever the outside status of a turf may change.
-/turf/proc/update_external_atmos_participation(overwrite_air = TRUE)
+/turf/proc/update_external_atmos_participation()
+	var/old_outside = last_outside_check
+	last_outside_check = OUTSIDE_UNCERTAIN
 	if(is_outside())
 		if(zone && external_atmosphere_participation)
 			if(can_safely_remove_from_zone())
-				#ifdef MULTIZAS
-				var/dirs = global.cardinalz
-				#else
-				var/dirs = global.cardinal
-				#endif
 				zone.remove(src)
-				// Update neighbors to create edges between zones and exterior
-				for(var/dir in dirs)
-					var/turf/neighbor = get_step(src, dir)
-					SSair.mark_for_update(neighbor)
 			else
 				zone.rebuild()
-	else if(zone_membership_candidate)
+	else if(!zone && zone_membership_candidate && old_outside == OUTSIDE_YES)
 		// Set the turf's air to the external atmosphere to add to its new zone.
-		if(overwrite_air)
-			air = get_external_air(FALSE)
-		SSair.mark_for_update(src)
+		air = get_external_air(FALSE)
+
+	SSair.mark_for_update(src)
 
 /turf/proc/is_outside()
 
@@ -577,9 +576,9 @@
 		return FALSE
 
 	is_outside = new_outside
-	last_outside_check = OUTSIDE_UNCERTAIN
-	SSambience.queued |= src
 	update_external_atmos_participation()
+	SSambience.queued |= src
+
 	if(!skip_weather_update)
 		update_weather()
 
@@ -592,7 +591,7 @@
 		checking = GetBelow(checking)
 		if(!isturf(checking))
 			break
-		checking.last_outside_check = OUTSIDE_UNCERTAIN
+		checking.update_external_atmos_participation()
 		if(!checking.is_open())
 			break
 	return TRUE
@@ -610,8 +609,8 @@
 	var/air_graphic = get_air_graphic()
 	if(length(air_graphic))
 		LAZYDISTINCTADD(., air_graphic)
-	if(weather)
-		LAZYADD(., weather)
+	if(length(weather?.vis_contents_additions))
+		LAZYADD(., weather.vis_contents_additions)
 	if(flooded)
 		var/flood_object = get_flood_overlay(flooded)
 		if(flood_object)
@@ -643,13 +642,6 @@
 		return 0
 	ChangeTurf(base_turf_type)
 	return 2
-
-/turf/on_defilement()
-	var/decl/special_role/cultist/cult = GET_DECL(/decl/special_role/cultist)
-	cult.add_cultiness(CULTINESS_PER_TURF)
-
-/turf/proc/is_defiled()
-	return (locate(/obj/effect/narsie_footstep) in src)
 
 /turf/proc/resolve_to_actual_turf()
 	return src
@@ -686,7 +678,7 @@
 /turf/add_blood(mob/living/M)
 	if(!simulated || !..() || !ishuman(M))
 		return FALSE
-	var/mob/living/carbon/human/H = M
+	var/mob/living/human/H = M
 	var/unique_enzymes = H.get_unique_enzymes()
 	var/blood_type     = H.get_blood_type()
 	if(unique_enzymes && blood_type)

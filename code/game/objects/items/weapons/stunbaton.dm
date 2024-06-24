@@ -95,7 +95,7 @@
 		update_icon()
 
 /obj/item/baton/use_on_mob(mob/living/target, mob/living/user, animate = TRUE)
-	if(status && (MUTATION_CLUMSY in user.mutations) && prob(50))
+	if(status && user.has_genetic_condition(GENE_COND_CLUMSY) && prob(50))
 		to_chat(user, SPAN_DANGER("You accidentally hit yourself with the [src]!"))
 		SET_STATUS_MAX(user, STAT_WEAK, 30)
 		deductcharge(hitcost)
@@ -110,7 +110,7 @@
 	var/stun = stunforce
 	var/obj/item/organ/external/affecting = null
 	if(ishuman(target))
-		var/mob/living/carbon/human/H = target
+		var/mob/living/human/H = target
 		affecting = GET_EXTERNAL_ORGAN(H, hit_zone)
 	var/abuser =  user ? "" : "by [user]"
 	if(user && user.a_intent == I_HURT)
@@ -144,7 +144,7 @@
 		deductcharge(hitcost)
 
 		if(ishuman(target))
-			var/mob/living/carbon/human/H = target
+			var/mob/living/human/H = target
 			H.forcesay(global.hit_appends)
 
 	return 1

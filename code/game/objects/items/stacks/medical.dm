@@ -38,7 +38,7 @@
 		use(1)
 		return TRUE
 
-	var/mob/living/carbon/human/H = target
+	var/mob/living/human/H = target
 	var/obj/item/organ/external/affecting = GET_EXTERNAL_ORGAN(H, user.get_target_zone())
 	if(!affecting)
 		to_chat(user, SPAN_WARNING("\The [target] is missing that body part!"))
@@ -86,6 +86,9 @@
 		/decl/material/liquid/brute_meds/yarrow  = 1,
 		/decl/material/liquid/burn_meds/aloe     = 1
 	)
+
+/obj/item/stack/medical/bruise_pack/bandage/five
+	amount = 5
 
 /obj/item/stack/medical/bruise_pack/bandage/proc/get_poultice_requirement_string()
 	. = list()
@@ -137,7 +140,7 @@
 	if(. || !ishuman(target))
 		return
 
-	var/mob/living/carbon/human/H = target
+	var/mob/living/human/H = target
 	var/obj/item/organ/external/affecting = GET_EXTERNAL_ORGAN(H, user.get_target_zone())
 	if(affecting.is_bandaged())
 		to_chat(user, SPAN_WARNING("The wounds on [target]'s [affecting.name] have already been bandaged."))
@@ -206,13 +209,16 @@
 	desc = "A bandage soaked in a medicinal herbal mixture, good for treating burns and preventing infections."
 	animal_heal = 3
 
+/obj/item/stack/medical/ointment/poultice/five
+	amount = 5
+
 /obj/item/stack/medical/ointment/use_on_mob(mob/living/target, mob/living/user, animate = TRUE)
 
 	. = ..()
 	if(. || !ishuman(target))
 		return
 
-	var/mob/living/carbon/human/H = target
+	var/mob/living/human/H = target
 	var/obj/item/organ/external/affecting = GET_EXTERNAL_ORGAN(H, user.get_target_zone())
 	if(affecting.is_salved())
 		to_chat(user, SPAN_WARNING("The wounds on [target]'s [affecting.name] have already been salved."))
@@ -252,7 +258,7 @@
 	if(. || !ishuman(target))
 		return
 
-	var/mob/living/carbon/human/H = target
+	var/mob/living/human/H = target
 	var/obj/item/organ/external/affecting = GET_EXTERNAL_ORGAN(H, user.get_target_zone())
 	if(affecting.is_bandaged() && affecting.is_disinfected())
 		to_chat(user, SPAN_WARNING("The wounds on [target]'s [affecting.name] have already been treated."))
@@ -318,7 +324,7 @@
 	if(. || !ishuman(target))
 		return
 
-	var/mob/living/carbon/human/H = target
+	var/mob/living/human/H = target
 	var/obj/item/organ/external/affecting = GET_EXTERNAL_ORGAN(H, user.get_target_zone())
 
 	if(affecting.is_salved())
@@ -365,7 +371,7 @@
 	if(. || !ishuman(target))
 		return
 
-	var/mob/living/carbon/human/H = target
+	var/mob/living/human/H = target
 	var/obj/item/organ/external/affecting = GET_EXTERNAL_ORGAN(H, user.get_target_zone())
 
 	if(!(affecting.organ_tag in splintable_organs))
@@ -405,7 +411,7 @@
 		var/obj/item/stack/medical/splint/S = split(1, TRUE)
 		if(S)
 			if(affecting.apply_splint(S))
-				target.verbs += /mob/living/carbon/human/proc/remove_splints
+				target.verbs += /mob/living/human/proc/remove_splints
 				S.forceMove(affecting)
 				if (target != user)
 					user.visible_message(
@@ -465,7 +471,7 @@
 /obj/item/stack/medical/resin/use_on_mob(mob/living/target, mob/living/user, animate = TRUE)
 	. = ..()
 	if(!. && ishuman(target))
-		var/mob/living/carbon/human/H = target
+		var/mob/living/human/H = target
 		var/obj/item/organ/external/affecting = GET_EXTERNAL_ORGAN(H, user.get_target_zone())
 		if((affecting.brute_dam + affecting.burn_dam) <= 0)
 			to_chat(user, SPAN_WARNING("\The [target]'s [affecting.name] is undamaged."))

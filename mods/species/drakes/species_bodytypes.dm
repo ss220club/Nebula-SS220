@@ -2,12 +2,12 @@
 	chargen_min_index = 2
 	chargen_max_index = 6
 	standalone_value_descriptors = list(
-		"a hatchling" =     1,
-		"an juvenile" =     2,
-		"an adolescent" =   4,
-		"an adult" =        6,
-		"aging" =          20,
-		"elderly" =        30
+		"a hatchling"   = 1,
+		"a juvenile"    = 2,
+		"an adolescent" = 4,
+		"an adult"      = 6,
+		"aging"         = 20,
+		"elderly"       = 30
 	)
 
 /datum/appearance_descriptor/age/grafadreka/hatchling
@@ -27,6 +27,7 @@
 	blood_overlays      = 'mods/species/drakes/icons/blood.dmi'
 	eye_icon            = 'mods/species/drakes/icons/eyes.dmi'
 	icon_template       = 'mods/species/drakes/icons/template.dmi'
+	skeletal_icon       = 'mods/species/drakes/icons/skeleton.dmi'
 	bodytype_category   = BODYTYPE_GRAFADREKA
 	eye_blend           = ICON_MULTIPLY
 	limb_blend          = ICON_MULTIPLY

@@ -11,6 +11,10 @@
 	var/static/list/exterior_wall_shine_cache = list()
 	var/being_mined = FALSE
 
+/turf/wall/natural/flooded
+	flooded = /decl/material/liquid/water
+	color = COLOR_LIQUID_WATER
+
 /turf/wall/natural/get_paint_examine_message()
 	return SPAN_NOTICE("It has been <font color = '[paint_color]'>noticeably discoloured</font> by the elements.")
 
@@ -118,13 +122,14 @@
 /turf/wall/natural/get_dismantle_sound()
 	return 'sound/effects/rockcrumble.ogg'
 
-/turf/wall/natural/dismantle_turf(devastated, explode, no_product, ramp_update = TRUE)
+// Natural walls are typically dense, and should not contain any air a-la normal walls, so we set keep_air = FALSE by default.
+/turf/wall/natural/dismantle_turf(devastated, explode, no_product, keep_air = FALSE, ramp_update = TRUE)
 	destroy_artifacts(null, INFINITY)
 	if(ramp_update && !ramp_slope_direction)
 		ramp_slope_direction = NORTH // Temporary so we don't let any neighboring ramps use us as supports.
 		update_neighboring_ramps()
 		ramp_slope_direction = null
-	return ..(devastated, explode, no_product)
+	return ..(devastated, explode, no_product, keep_air)
 
 /turf/wall/natural/Bumped(var/atom/movable/AM)
 	. = ..()
@@ -169,9 +174,6 @@
 
 /turf/wall/natural/get_default_material()
 	. = GET_DECL(get_strata_material_type() || /decl/material/solid/stone/sandstone)
-
-/turf/wall/natural/on_defilement()
-	ChangeTurf(/turf/wall/cult)
 
 /turf/wall/natural/get_strata_material_type()
 	//Turf strata overrides level strata
