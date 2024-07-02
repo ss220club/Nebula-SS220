@@ -10,7 +10,7 @@
 
 	var/structure_flags
 	var/last_damage_message
-	var/hitsound = 'sound/weapons/smash.ogg'
+	var/hitsound = 'sound/weapons/Genhit.ogg'
 	var/parts_type
 	var/parts_amount
 	var/footstep_type
@@ -61,7 +61,7 @@
 		reinf_material = GET_DECL(reinf_material)
 	. = ..()
 	update_materials()
-	if(lock)
+	if(lock && !istype(loc))
 		lock = new /datum/lock(src, lock)
 	if(!CanFluidPass())
 		fluid_update(TRUE)

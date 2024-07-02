@@ -44,7 +44,9 @@ var/global/list/wall_fullblend_objects = list(
 	var/decl/material/girder_material = /decl/material/solid/metal/steel
 	var/construction_stage
 	var/hitsound = 'sound/weapons/Genhit.ogg'
+	/// A list of connections to walls for each corner, used for icon generation. Can be converted to a list of dirs with corner_states_to_dirs().
 	var/list/wall_connections
+	/// A list of connections to non-walls for each corner, used for icon generation. Can be converted to a list of dirs with corner_states_to_dirs().
 	var/list/other_connections
 	var/floor_type = /turf/floor/plating //turf it leaves after destruction
 	var/paint_color
@@ -52,6 +54,15 @@ var/global/list/wall_fullblend_objects = list(
 	var/handle_structure_blending = TRUE
 	var/min_dismantle_amount = 2
 	var/max_dismantle_amount = 2
+
+	/// Icon to use if shutter state is non-null.
+	var/shutter_icon = 'icons/turf/walls/shutter.dmi'
+	/// TRUE = open, FALSE = closed, null = no shutter.
+	var/shutter_state
+	/// Overrides base material for shutter icon if set.
+	var/decl/material/shutter_material
+	/// Shutter open/close sound.
+	var/shutter_sound = 'sound/weapons/Genhit.ogg'
 
 /turf/wall/Initialize(var/ml, var/materialtype, var/rmaterialtype)
 
@@ -61,6 +72,9 @@ var/global/list/wall_fullblend_objects = list(
 	icon = get_wall_icon()
 	icon_state = "blank"
 	color = null
+
+	if(ispath(shutter_material))
+		shutter_material = GET_DECL(shutter_material)
 
 	set_turf_materials((materialtype || material || get_default_material()), (rmaterialtype || reinf_material), TRUE, girder_material, skip_update = TRUE)
 

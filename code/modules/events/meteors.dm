@@ -112,9 +112,9 @@ var/global/list/meteors_major = list(
 /datum/event/meteor_wave/overmap/tick()
 	if(!victim)
 		return
-	if (victim.is_still() || victim.get_helm_skill() >= SKILL_ADEPT) //Unless you're standing or good at your job..
+	if (victim.is_still() || victim.get_helm_skill() >= SKILL_ADEPT) //Unless you're standing still or good at your job...
 		start_side = pick(global.cardinal)
-	else //..Meteors mostly fly in your face
+	else //... Meteors mostly fly in your face
 		start_side = prob(90) ? victim.fore_dir : pick(global.cardinal)
 	..()
 
@@ -242,9 +242,6 @@ var/global/list/meteors_major = list(
 /obj/effect/meteor/Initialize()
 	. = ..()
 	z_original = z
-
-/obj/effect/meteor/Initialize()
-	. = ..()
 	global.meteor_list += src
 
 /obj/effect/meteor/Move()
@@ -258,7 +255,7 @@ var/global/list/meteors_major = list(
 		qdel(src)
 
 /obj/effect/meteor/Destroy()
-	walk(src,0) //this cancels the walk_towards() proc
+	walk(src, 0)
 	global.meteor_list -= src
 	. = ..()
 
