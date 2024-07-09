@@ -132,6 +132,7 @@
 /obj/machinery/door/Destroy()
 	set_density(0)
 	update_nearby_tiles()
+	update_bounds()
 	. = ..()
 
 /obj/machinery/door/Process()
