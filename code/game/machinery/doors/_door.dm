@@ -41,6 +41,8 @@
 	//Multi-tile doors
 	dir = SOUTH
 	var/width = 1
+	/// List. Player view blocking fillers for multi-tile doors.
+	var/list/fillers // SS220 ADD
 
 	//Used for intercepting clicks on our turf. Set 0 to disable click interception
 	var/turf_hand_priority = 3
@@ -95,7 +97,7 @@
 	else
 		layer = open_layer
 
-	set_bounds()
+	update_bounds()
 
 	if (turf_hand_priority)
 		set_extension(src, /datum/extension/turf_hand, turf_hand_priority)
@@ -130,6 +132,7 @@
 /obj/machinery/door/Destroy()
 	set_density(0)
 	update_nearby_tiles()
+	update_bounds()
 	. = ..()
 
 /obj/machinery/door/Process()
@@ -443,15 +446,26 @@
 	do_animate("opening")
 	icon_state = icon_state_open
 	set_opacity(FALSE)
-
+	// SS220 ADD BEGIN
+	if(width > 1)
+		set_fillers_opacity(0)
+	// SS220 ADD END
 	sleep(0.5 SECONDS)
 	src.set_density(FALSE)
+	// SS220 ADD BEGIN
+	if(width > 1)
+		set_fillers_density(0)
+	// SS220 ADD END
 	update_nearby_tiles()
 
 	sleep(0.5 SECONDS)
 	src.layer = open_layer
 	update_icon()
 	set_opacity(FALSE)
+	// SS220 ADD BEGIN
+	if(width > 1)
+		set_fillers_opacity(0)
+	// SS220 ADD END
 	operating = 0
 
 	if(autoclose)
@@ -473,6 +487,10 @@
 
 	sleep(0.5 SECONDS)
 	src.set_density(TRUE)
+	// SS220 ADD BEGIN
+	if(width > 1)
+		set_fillers_density(1)
+	// SS220 ADD END
 	update_nearby_tiles()
 	src.layer = closed_layer
 
@@ -480,6 +498,10 @@
 	update_icon()
 	if(visible && !glass)
 		set_opacity(TRUE)
+		// SS220 ADD BEGIN
+		if(width > 1)
+			set_fillers_opacity(1)
+		// SS220 ADD END
 	operating = 0
 
 	//I shall not add a check every x ticks if a door has closed over some fire.
@@ -517,6 +539,7 @@
 /obj/machinery/door/Move(new_loc, new_dir)
 	. = ..()
 	update_nearby_tiles()
+	update_bounds() // SS220 ADD
 	if(.)
 		dismantle(TRUE)
 
@@ -625,3 +648,66 @@
 	name = "close door"
 	desc = "Closes the door if possible."
 	call_proc = /obj/machinery/door/proc/close
+
+// SS220 ADD BEGIN
+/**
+ * Checks which way the airlock is facing and adjusts the direction accordingly.
+ * For use with multi-tile airlocks.
+ */
+/obj/machinery/door/proc/get_adjusted_dir(dir)
+	if(dir in list(NORTH, SOUTH))
+		return EAST
+	else
+		return NORTH
+
+/**
+ * Sets the bounds of the airlock. For use with multi-tile airlocks.
+ * If the airlock is multi-tile, it will set the bounds to be the size of the airlock.
+ * If the airlock doesn't already have fillers, it will create them.
+ * If the airlock already has fillers, it will move them to the correct location.
+ */
+/obj/machinery/door/proc/update_bounds()
+	if(width <= 1)
+		return
+
+	if(dir in list(NORTH, SOUTH))
+		bound_width = width * world.icon_size
+		bound_height = world.icon_size
+	else
+		bound_width = world.icon_size
+		bound_height = width * world.icon_size
+
+	LAZYINITLIST(fillers)
+
+	var/adjusted_dir = get_adjusted_dir(dir)
+	var/obj/last_filler = src
+	for (var/i = 1, i < width, i++)
+		var/obj/airlock_filler_object/filler
+
+		if (length(fillers) < i)
+			filler = new
+			filler.pair_airlock(src)
+			fillers.Add(filler)
+		else
+			filler = fillers[i]
+
+		filler.loc = get_step(last_filler, adjusted_dir)
+		filler.density = density
+		filler.set_opacity(opacity)
+
+		last_filler = filler
+
+/obj/machinery/door/proc/set_fillers_density(density)
+	if (!length(fillers))
+		return
+
+	for (var/obj/airlock_filler_object/filler as anything in fillers)
+		filler.density = density
+
+/obj/machinery/door/proc/set_fillers_opacity(opacity)
+	if (!length(fillers))
+		return
+
+	for (var/obj/airlock_filler_object/filler as anything in fillers)
+		filler.set_opacity(opacity)
+// SS220 ADD END
